@@ -2,7 +2,7 @@
 // Reached by path '/message/${messageId}'
 
 import React from 'react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Swal from 'sweetalert2';
@@ -35,6 +35,7 @@ function MessageConversation() {
   const existingMessages = useSelector((store) => store.chat.chatReducer);
   const currentUser = useSelector((store) => store.user);
   const toUser = useSelector((store) => store.otherUserDetails);
+  const [message, setMessage] = useState('');
 
   useEffect(() => {
     // Fetch current messages
