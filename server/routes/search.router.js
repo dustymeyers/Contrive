@@ -19,48 +19,49 @@ router.get(
     // If none of the 3 filter options given, return all vendors:
     if (searchTerm === '37423573209' && typeId === -1 && featureId === -1) {
       const sqlText = `
-  SELECT
-  "users"."username",
-  "users"."website",
-  "users"."firstName",
-  "users"."lastName",
-  "users"."profilePic",
-  "users"."address", 
-  "users"."city", 
-  "users"."state", 
-  "users"."zip",
-  "vendors"."companyName",
-  "vendors"."vendorUserId",
-  "vendors"."description", 
-  "vendors"."additionalInfo", 
-  "vendors"."phone", 
-  "vendors"."certified",
-  "vendors"."companyName",
-  JSON_AGG(DISTINCT "service_types".*) AS "serviceTypes", 
-  JSON_AGG(DISTINCT "special_features".*) AS "specialFeatures"
-  FROM "users"
-  JOIN "vendors" ON "users"."id" = "vendors"."vendorUserId" 
-  JOIN "vendors_features" ON "vendors"."vendorUserId" = "vendors_features"."vendorUserId"
-  JOIN "special_features" ON "vendors_features"."featureId" = "special_features"."id"
-  JOIN "vendors_services" ON "vendors"."vendorUserId" = "vendors_services"."vendorUserId"
-  JOIN "service_types" ON "vendors_services"."serviceId" = "service_types"."id"
-  WHERE "users"."type" = 'vendor'
-  GROUP BY 
-  "users"."username",
-  "users"."firstName",
-  "users"."lastName",
-  "users"."website",
-  "users"."profilePic",
-  "users"."address", 
-  "users"."city", 
-  "users"."state", 
-  "users"."zip",
-  "vendors"."vendorUserId", 
-  "vendors"."description", 
-  "vendors"."additionalInfo", 
-  "vendors"."phone", 
-  "vendors"."certified", 
-  "vendors"."companyName";`;
+        SELECT
+        "users"."username",
+        "users"."website",
+        "users"."firstName",
+        "users"."lastName",
+        "users"."profilePic",
+        "users"."address", 
+        "users"."city", 
+        "users"."state", 
+        "users"."zip",
+        "vendors"."companyName",
+        "vendors"."vendorUserId",
+        "vendors"."description", 
+        "vendors"."additionalInfo", 
+        "vendors"."phone", 
+        "vendors"."certified",
+        "vendors"."companyName",
+        JSON_AGG(DISTINCT "service_types".*) AS "serviceTypes", 
+        JSON_AGG(DISTINCT "special_features".*) AS "specialFeatures"
+        FROM "users"
+        JOIN "vendors" ON "users"."id" = "vendors"."vendorUserId" 
+        JOIN "vendors_features" ON "vendors"."vendorUserId" = "vendors_features"."vendorUserId"
+        JOIN "special_features" ON "vendors_features"."featureId" = "special_features"."id"
+        JOIN "vendors_services" ON "vendors"."vendorUserId" = "vendors_services"."vendorUserId"
+        JOIN "service_types" ON "vendors_services"."serviceId" = "service_types"."id"
+        WHERE "users"."type" = 'vendor'
+        GROUP BY 
+        "users"."username",
+        "users"."firstName",
+        "users"."lastName",
+        "users"."website",
+        "users"."profilePic",
+        "users"."address", 
+        "users"."city", 
+        "users"."state", 
+        "users"."zip",
+        "vendors"."vendorUserId", 
+        "vendors"."description", 
+        "vendors"."additionalInfo", 
+        "vendors"."phone", 
+        "vendors"."certified", 
+        "vendors"."companyName";
+      `;
 
       pool
         .query(sqlText)
@@ -77,12 +78,13 @@ router.get(
     }
     // If no special feature nor search term selected, filter only for the vendor type:
     else if (featureId === -1 && searchTerm === '37423573209') {
-      const queryText = `SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
-                       JOIN "users" ON "vendors"."vendorUserId" = "users".id
-                       WHERE "vendorUserId" IN 
-                       (SELECT "vendorUserId" FROM "vendors_services"
-                       WHERE "serviceId" = $1); 
-                       `;
+      const queryText = `
+        SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
+        JOIN "users" ON "vendors"."vendorUserId" = "users".id
+        WHERE "vendorUserId" IN 
+        (SELECT "vendorUserId" FROM "vendors_services"
+        WHERE "serviceId" = $1); 
+      `;
       pool
         .query(queryText, [typeId])
         .then((result) => {
@@ -95,12 +97,13 @@ router.get(
     }
     // If no vendor type nor search term selected, filter only for the special feature:
     else if (typeId === -1 && searchTerm === '37423573209') {
-      const queryText = `SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
-                       JOIN "users" ON "vendors"."vendorUserId" = "users".id
-                       WHERE "vendorUserId" IN 
-                       ( SELECT "vendorUserId" FROM "vendors_features"
-                       WHERE "featureId" = $1 ); 
-                       `;
+      const queryText = `
+        SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
+        JOIN "users" ON "vendors"."vendorUserId" = "users".id
+        WHERE "vendorUserId" IN 
+        ( SELECT "vendorUserId" FROM "vendors_features"
+        WHERE "featureId" = $1 ); 
+      `;
       pool
         .query(queryText, [featureId])
         .then((result) => {
@@ -113,10 +116,11 @@ router.get(
     }
     // If no special feature nor vendor type selected, filter only for the search term:
     else if (typeId === -1 && featureId === -1) {
-      const queryText = `SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
-                       JOIN "users" ON "vendors"."vendorUserId" = "users".id
-                       WHERE "companyName" ILIKE '%' || $1 || '%'; 
-                       `;
+      const queryText = `
+        SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
+        JOIN "users" ON "vendors"."vendorUserId" = "users".id
+        WHERE "companyName" ILIKE '%' || $1 || '%'; 
+      `;
       pool
         .query(queryText, [searchTerm])
         .then((result) => {
@@ -130,12 +134,12 @@ router.get(
     // If special feature and search term given but no vendor type:
     else if (typeId === -1 && featureId != -1 && searchTerm != '37423573209') {
       const queryText = `SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
-                       JOIN "users" ON "vendors"."vendorUserId" = "users".id
-                       WHERE ( "vendorUserId" IN 
-                       ( SELECT "vendorUserId" FROM "vendors_features" WHERE "featureId" = $1 ))
-                       AND
-                       "vendors"."companyName" ILIKE '%' || $2 || '%';
-                       ;`;
+                        JOIN "users" ON "vendors"."vendorUserId" = "users".id
+                        WHERE ( "vendorUserId" IN 
+                        ( SELECT "vendorUserId" FROM "vendors_features" WHERE "featureId" = $1 ))
+                        AND
+                        "vendors"."companyName" ILIKE '%' || $2 || '%';
+                        ;`;
 
       pool
         .query(queryText, [featureId, searchTerm])
@@ -152,13 +156,14 @@ router.get(
     }
     // If vendor type and search term given but no special feature:
     else if (featureId === -1 && typeId != -1 && searchTerm != '37423573209') {
-      const queryText = `SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
-                       JOIN "users" ON "vendors"."vendorUserId" = "users".id
-                       WHERE ("vendorUserId" IN 
-                       ( SELECT "vendorUserId" FROM "vendors_services" WHERE "serviceId" = $1 ))
-                       AND
-                       "vendors"."companyName" ILIKE '%' || $2 || '%';
-                       `;
+      const queryText = `
+        SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
+        JOIN "users" ON "vendors"."vendorUserId" = "users".id
+        WHERE ("vendorUserId" IN 
+        ( SELECT "vendorUserId" FROM "vendors_services" WHERE "serviceId" = $1 ))
+        AND
+        "vendors"."companyName" ILIKE '%' || $2 || '%';
+      `;
 
       pool
         .query(queryText, [typeId, searchTerm])
@@ -172,14 +177,15 @@ router.get(
     }
     // If vendor type and special feature given but no search term:
     else if (searchTerm === '37423573209' && typeId != -1 && featureId != -1) {
-      const queryText = `SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
-                       JOIN "users" ON "vendors"."vendorUserId" = "users".id
-                       WHERE ("vendorUserId" IN 
-                       ( SELECT "vendorUserId" FROM "vendors_services" WHERE "serviceId" = $1 ))
-                       AND
-                       ( "vendorUserId" IN 
-                       ( SELECT "vendorUserId" FROM "vendors_features" WHERE "featureId" = $2 ));
-                       `;
+      const queryText = `
+        SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
+        JOIN "users" ON "vendors"."vendorUserId" = "users".id
+        WHERE ("vendorUserId" IN 
+        ( SELECT "vendorUserId" FROM "vendors_services" WHERE "serviceId" = $1 ))
+        AND
+        ( "vendorUserId" IN 
+        ( SELECT "vendorUserId" FROM "vendors_features" WHERE "featureId" = $2 ));
+      `;
       pool
         .query(queryText, [typeId, featureId])
         .then((result) => {
@@ -192,16 +198,17 @@ router.get(
     }
     // If all 3 search options given:
     else if (searchTerm != '37423573209' && typeId != -1 && featureId != -1) {
-      const queryText = `SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
-                       JOIN "users" ON "vendors"."vendorUserId" = "users".id
-                       WHERE ("vendorUserId" IN 
-                       ( SELECT "vendorUserId" FROM "vendors_services" WHERE "serviceId" = $1 ))
-                       AND
-                       ( "vendorUserId" IN 
-                       ( SELECT "vendorUserId" FROM "vendors_features" WHERE "featureId" = $2 ))
-                       AND
-                       "vendors"."companyName" ILIKE '%' || $3 || '%';
-                       `;
+      const queryText = `
+        SELECT "vendors"."companyName", "vendors"."vendorUserId", "users"."profilePic" FROM "vendors"
+        JOIN "users" ON "vendors"."vendorUserId" = "users".id
+        WHERE ("vendorUserId" IN 
+        ( SELECT "vendorUserId" FROM "vendors_services" WHERE "serviceId" = $1 ))
+        AND
+        ( "vendorUserId" IN 
+        ( SELECT "vendorUserId" FROM "vendors_features" WHERE "featureId" = $2 ))
+        AND
+        "vendors"."companyName" ILIKE '%' || $3 || '%';
+      `;
       pool
         .query(queryText, [typeId, featureId, searchTerm])
         .then((result) => {

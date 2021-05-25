@@ -11,6 +11,7 @@ const {
 router.get('/all', rejectUnauthenticated, async (req, res) => {
   // GET ROUTE - Gets all messages for currently logged-in user
   const userId = req.user.id; // logged-in user's id
+  console.log(req.user)
 
   if (req.user.type === 'planner') {
     const plannerQueryText = `

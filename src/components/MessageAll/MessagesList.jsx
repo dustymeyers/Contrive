@@ -59,7 +59,7 @@ function MessagesList() {
               } else {
                 otherUserGreeting = conversation.firstName + ' ' + conversation.lastName;
               }
-
+              
               return (
                 <div key={index} >
                   <ListItem alignItems="flex-start" onClick={() => viewConversation(messenger)}>
